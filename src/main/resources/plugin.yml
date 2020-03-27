@@ -1,0 +1,11 @@
+name: MessageToggle
+version: ${project.version}
+main: frcsty.github.messagetoggle.MessagePlugin
+
+permissions:
+  toggle.use:
+    default: op
+    description: Grants access to toggle command
+  toggle.reload:
+    default: op
+    description: Grants acces to reload command

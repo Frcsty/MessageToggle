@@ -1,0 +1,29 @@
+
+
+messages:
+  prefix: '&8[&bMessageToggle&8]'
+  no-permission: '%prefix% &7You do not have permission to execute this command!'
+  player-only: '%prefix% &7This command can not be executed in console!'
+  usage: '%prefix% &7Invalid Usage! Use &b/{command} {usage}'
+  unknown-command: '%prefix% &7Unknown Command!'
+  reload: '%prefix% &7Reloaded plugin configuration!'
+  toggled-setting: '%prefix% &7Toggled messages for &b%toggle%&7! &8(&7Status&8: &b%status%&8)'
+  invalid-argument: '%prefix% &7Invalid argument! Usage: &b{usage}'
+  true: '&cDisabled'
+  false: '&aEnabled'
+
+
+settings:
+  base-command: toggle
+  alias:
+    - "tn"
+    - "togglenotifications"
+
+
+message-toggle:
+  prestige:
+    plugin-message: 'Ez-Prestige'
+    permission: toggle.prestige
+  announcer:
+    plugin-message: ''
+    permission: toggle.announcer
