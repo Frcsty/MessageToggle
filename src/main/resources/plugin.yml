@@ -2,6 +2,7 @@ name: MessageToggle
 version: ${project.version}
 main: frcsty.github.messagetoggle.MessagePlugin
 
+
 permissions:
   toggle.use:
     default: op
