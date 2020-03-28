@@ -1,9 +1,11 @@
 package frcsty.github.messagetoggle.commands;
 
 import com.codeitforyou.lib.api.command.Command;
+import com.codeitforyou.lib.api.general.PAPIUtil;
 import com.codeitforyou.lib.api.general.StringUtil;
 import frcsty.github.messagetoggle.MessagePlugin;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class ReloadCommand
@@ -22,7 +24,14 @@ public class ReloadCommand
                 plugin.getFileManager().saveFileAsynchronous();
             }
         }.runTaskAsynchronously(plugin);
-        sender.sendMessage(StringUtil.translate(plugin.getStorage().getReload()));
+        if (sender instanceof Player)
+        {
+            sender.sendMessage(PAPIUtil.parse((Player) sender, plugin.getStorage().getReload()));
+        }
+        else
+        {
+            sender.sendMessage(StringUtil.translate(plugin.getStorage().getReload()));
+        }
     }
 
 }
