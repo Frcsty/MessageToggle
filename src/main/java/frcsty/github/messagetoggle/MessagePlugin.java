@@ -38,6 +38,7 @@ public final class MessagePlugin extends JavaPlugin implements Listener
 
         fileManager.createDataFile();
         fileManager.createFileSection();
+        fileManager.saveFileAsynchronous();
 
         storageData.reloadMessageData();
 

@@ -4,8 +4,6 @@ import frcsty.github.messagetoggle.MessagePlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class StorageData
