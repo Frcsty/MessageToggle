@@ -5,6 +5,7 @@ import com.codeitforyou.lib.api.general.StringUtil;
 import frcsty.github.messagetoggle.MessagePlugin;
 import frcsty.github.messagetoggle.manager.FileManager;
 import frcsty.github.messagetoggle.utility.Storage;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 
 public class ToggleCommand
@@ -17,64 +18,36 @@ public class ToggleCommand
         final FileManager manager = plugin.getFileManager();
         final String argument = args[0];
 
-        switch (argument)
+        String permission = plugin.getConfig().getString("message-toggle." + argument + ".permission");
+        String message = plugin.getConfig().getString("message-toggle." + argument + ".message");
+
+        if (permission == null || message == null)
         {
-            case "prestige":
-                final String prestigePerm = plugin.getConfig().getString("message-toggle.prestige.permission");
-                if (prestigePerm != null && sender.hasPermission(prestigePerm))
-                {
-                    if (manager.getUserToggleStatus("prestige", sender))
-                    {
-                        manager.setUserToggleStatus("prestige", sender, false);
-                        sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
-                        .replace("%status%", storage.getFalseString())
-                        .replace("%toggle%", argument))
-                        );
-                    }
-                    else
-                    {
-                        manager.setUserToggleStatus("prestige", sender, true);
-                        sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
-                        .replace("%status%", storage.getTrueString())
-                        .replace("%toggle%", argument))
-                        );
-                    }
-                }
-                else
-                {
-                    sender.sendMessage(StringUtil.translate(storage.getNoPermission()));
-                }
-                break;
-            case "announcer":
-                final String announcerPerm = plugin.getConfig().getString("message-toggle.announcer.permission");
-                if (announcerPerm != null && sender.hasPermission(announcerPerm))
-                {
-                    if (manager.getUserToggleStatus("announcer", sender))
-                    {
-                        manager.setUserToggleStatus("announcer", sender, false);
-                        sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
-                        .replace("%status%", storage.getFalseString())
-                        .replace("%toggle%", argument))
-                        );
-                    }
-                    else
-                    {
-                        manager.setUserToggleStatus("announcer", sender, true);
-                        sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
-                        .replace("%status%", storage.getTrueString())
-                        .replace("%toggle%", argument))
-                        );
-                    }
-                }
-                else
-                {
-                    sender.sendMessage(StringUtil.translate(storage.getNoPermission()));
-                }
-                break;
-            default:
-                sender.sendMessage(StringUtil.translate(storage.getInvalidArgument()));
-                break;
+            sender.sendMessage(StringUtil.translate(storage.getInvalidArgument()));
+            return;
         }
+
+        if (!sender.hasPermission(permission))
+        {
+            sender.sendMessage(StringUtil.translate(storage.getNoPermission()));
+            return;
+        }
+
+        if (manager.getUserToggleStatus(argument, sender))
+        {
+            sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
+                               .replace("%status%", storage.getFalseString())
+                               .replace("%toggle%", StringUtils.capitalize(argument))));
+            manager.setUserToggleStatus(argument, sender, false);
+        }
+        else
+        {
+            sender.sendMessage(StringUtil.translate(storage.getChangedStatus()
+                               .replace("%status%", storage.getTrueString())
+                               .replace("%toggle%", StringUtils.capitalize(argument))));
+            manager.setUserToggleStatus(argument, sender, true);
+        }
+
         manager.saveFileAsynchronous();
     }
 

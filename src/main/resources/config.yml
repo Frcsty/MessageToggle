@@ -1,4 +1,8 @@
-
+#
+# Author: github/Frcsty
+# Version: 1.0.0
+# Description: A plugin which uses NMS to toggle messages (server, player, plugin).
+#
 
 messages:
   prefix: '&8[&bMessageToggle&8]'
@@ -12,18 +16,16 @@ messages:
   true: '&cDisabled'
   false: '&aEnabled'
 
-
 settings:
   base-command: toggle
   alias:
     - "tn"
     - "togglenotifications"
 
-
 message-toggle:
-  prestige:
-    plugin-message: 'Ez-Prestige'
-    permission: toggle.prestige
-  announcer:
-    plugin-message: ''
-    permission: toggle.announcer
+  help:
+    message: 'Type /help for a list of commands.'
+    permission: toggle.help
+  mail:
+    message: 'You have no new mail.'
+    permission: toggle.mail

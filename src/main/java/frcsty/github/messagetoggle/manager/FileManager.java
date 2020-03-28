@@ -99,10 +99,5 @@ public class FileManager
         return data.getBoolean("users." + player.getUniqueId() + "." + status);
     }
 
-    public boolean getUserExistance(final Player player)
-    {
-        return data.get("users." + player.getUniqueId()) != null;
-    }
-
 }
 

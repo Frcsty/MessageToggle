@@ -48,28 +48,9 @@ public class StorageData
             @Override
             public void run()
             {
-                storage.setBaseCommand(settings.getString("base-command"));
-                storage.setAlias(settings.getStringList("alias"));
-
                 storage.setPrefix(messages.getString("prefix"));
 
-                /*
                 storage.setNoPermission(replace(messages.getString("no-permission"), "%prefix%", storage.getPrefix()));
-                storage.setPlayerOnly(replace(messages.getString("player-only"),"%prefix%", storage.getPrefix()));
-                storage.setUnknownCommand(replace(messages.getString("unknown-command"),"%prefix%", storage.getPrefix()));
-                storage.setUsage(replace(messages.getString("usage"),"%prefix%", storage.getPrefix()));
-                */
-
-                final Map<String, String> map = new HashMap<>();
-                for (final String m : message.getKeys(false))
-                {
-                    final String msg = message.getString(m + ".plugin-message");
-                    final String perm = message.getString(m + ".permission");
-
-                    map.put(m, msg + ";" + perm);
-                }
-                storage.setMessages(map);
-
                 storage.setInvalidArgument(replace(messages.getString("invalid-argument"), "%prefix%", storage.getPrefix()));
                 storage.setReload(replace(messages.getString("reload"), "%prefix%", storage.getPrefix()));
                 storage.setChangedStatus(replace(messages.getString("toggled-setting"), "%prefix%", storage.getPrefix()));

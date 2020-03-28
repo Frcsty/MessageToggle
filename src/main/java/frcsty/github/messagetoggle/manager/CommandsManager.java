@@ -5,6 +5,7 @@ import com.codeitforyou.lib.api.general.StringUtil;
 import frcsty.github.messagetoggle.MessagePlugin;
 import frcsty.github.messagetoggle.commands.ReloadCommand;
 import frcsty.github.messagetoggle.commands.ToggleCommand;
+import frcsty.github.messagetoggle.utility.TabComplete;
 
 import java.util.Collections;
 
@@ -14,6 +15,7 @@ public class CommandsManager
     private final CommandManager        manager;
     private final CommandManager.Locale locale;
     private final MessagePlugin         plugin;
+    private final TabComplete           tabComplete;
 
     public CommandsManager(final MessagePlugin plugin)
     {
@@ -24,29 +26,31 @@ public class CommandsManager
         ), plugin.getConfig().getString("settings.base-command"), plugin);
 
         this.locale = manager.getLocale();
+        this.tabComplete = new TabComplete(plugin);
     }
 
     public void registerCommand()
     {
-        // Assign attributes to before created Command Manager
         this.createCommandAttributes();
 
-        // Register Command Manager after all attributes have been applied
         this.manager.register();
+
+        final String command = plugin.getConfig().getString("settings.base-command");
+        if (command != null)
+        {
+            plugin.getCommand(command).setTabCompleter(tabComplete);
+        }
     }
 
     private void createCommandAttributes()
     {
-        // Set the main plugin command
         this.manager.setMainCommand(ReloadCommand.class);
 
-        // Assign command aliases
         for (final String cmd : plugin.getConfig().getStringList("settings.alias"))
         {
             this.manager.addAlias(cmd);
         }
 
-        // Set command messages handled by the libs Command Manager
         this.locale.setUsage(getDefaultMessage(plugin.getConfig().getString("messages.usage")));
         this.locale.setUnknownCommand(getDefaultMessage(plugin.getConfig().getString("messages.unknown-command")));
         this.locale.setPlayerOnly(getDefaultMessage(plugin.getConfig().getString("messages.player-only")));
@@ -56,6 +60,11 @@ public class CommandsManager
     private String getDefaultMessage(final String message)
     {
         return message == null ? StringUtil.translate("&8[&9MessageToggle&8] &cNo default message specified in the config!") : StringUtil.translate(message);
+    }
+
+    public CommandManager getManager()
+    {
+        return manager;
     }
 
 }
