@@ -21,7 +21,7 @@ public class ReloadCommand
             {
                 plugin.reloadConfig();
                 plugin.getStorageData().reloadMessageData();
-                plugin.getFileManager().saveFileAsynchronous();
+                plugin.getFileManager().saveFileAsync(true);
             }
         }.runTaskAsynchronously(plugin);
         if (sender instanceof Player)

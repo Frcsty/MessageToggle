@@ -15,6 +15,7 @@ import frcsty.github.messagetoggle.utility.StorageData;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,9 +37,8 @@ public final class MessagePlugin extends JavaPlugin implements Listener
         saveDefaultConfig();
         reloadConfig();
 
-        fileManager.createDataFile();
+        fileManager.createConfigFile();
         fileManager.createFileSection();
-        fileManager.saveFileAsynchronous();
 
         storageData.reloadMessageData();
 
@@ -47,54 +47,16 @@ public final class MessagePlugin extends JavaPlugin implements Listener
         getServer().getPluginManager().registerEvents(this, this);
 
         protocolManager = ProtocolLibrary.getProtocolManager();
+        registerNewPacket();
 
-        try
-        {
-            protocolManager.addPacketListener(
-                    new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.CHAT)
-                    {
-                        @Override
-                        public void onPacketSending(PacketEvent event)
-                        {
-                            if (event.getPacketType() == PacketType.Play.Server.CHAT)
-                            {
-                                final PacketContainer packet = event.getPacket();
-                                final WrappedChatComponent component = packet.getChatComponents().read(0);
-                                final String message = ChatColor.stripColor(TextComponent.toLegacyText(ComponentSerializer.parse(component.getJson())));
-
-                                for (String messages : plugin.getConfig().getConfigurationSection("message-toggle").getKeys(false))
-                                {
-                                    String msg = plugin.getConfig().getString("message-toggle." + messages + ".message");
-
-                                    if (msg == null)
-                                    {
-                                        return;
-                                    }
-
-                                    if (message.contains(msg))
-                                    {
-                                        if (fileManager.getUserToggleStatus(messages, event.getPlayer()))
-                                        {
-                                            event.setCancelled(true);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-            );
-        }
-        catch (IllegalStateException ex)
-        {
-            getLogger().log(Level.WARNING, "Error executing packets!", ex);
-        }
+        fileManager.saveFileAsync(true);
     }
 
     @Override
     public void onDisable()
     {
         reloadConfig();
-        fileManager.saveDataFile();
+        fileManager.saveFileAsync(false);
     }
 
     public Storage getStorage()
@@ -115,6 +77,87 @@ public final class MessagePlugin extends JavaPlugin implements Listener
     public CommandsManager getManager()
     {
         return manager;
+    }
+
+    private void registerNewPacket()
+    {
+        try
+        {
+            protocolManager.addPacketListener(
+                    new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Server.CHAT)
+                    {
+                        @Override
+                        public void onPacketSending(PacketEvent event)
+                        {
+                            if (event.getPacketType() == PacketType.Play.Server.CHAT)
+                            {
+                                final PacketContainer packet = event.getPacket();
+                                final WrappedChatComponent component = packet.getChatComponents().read(0);
+                                final String message = ChatColor.stripColor(TextComponent.toLegacyText(ComponentSerializer.parse(component.getJson())));
+                                final ConfigurationSection section = plugin.getConfig().getConfigurationSection("message-toggle");
+
+                                if (section == null)
+                                {
+                                    return;
+                                }
+
+                                for (String messages : section.getKeys(false))
+                                {
+                                    final String msg = plugin.getConfig().getString("message-toggle." + messages + ".message");
+                                    final String type = plugin.getConfig().getString("message-toggle." + messages + ".type");
+
+                                    if (msg == null)
+                                    {
+                                        return;
+                                    }
+
+                                    if (type == null)
+                                    {
+                                        return;
+                                    }
+
+                                    if (!fileManager.getUserToggleStatus(messages, event.getPlayer()))
+                                    {
+                                        return;
+                                    }
+
+                                    switch (type)
+                                    {
+                                        case "equals":
+                                            if (message.equals(msg))
+                                            {
+                                                event.setCancelled(true);
+                                            }
+                                            break;
+                                        case "equalsIgnoreCase":
+                                            if (message.equalsIgnoreCase(msg))
+                                            {
+                                                event.setCancelled(true);
+                                            }
+                                            break;
+                                        case "startsWith":
+                                            if (message.startsWith(msg))
+                                            {
+                                                event.setCancelled(true);
+                                            }
+                                            break;
+                                        case "contains":
+                                            if (message.contains(msg))
+                                            {
+                                                event.setCancelled(true);
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+            );
+        }
+        catch (IllegalStateException ex)
+        {
+            getLogger().log(Level.WARNING, "Error executing packets!", ex);
+        }
     }
 
 }

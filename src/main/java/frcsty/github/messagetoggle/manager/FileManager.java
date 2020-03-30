@@ -14,34 +14,25 @@ public class FileManager
 {
 
     private final MessagePlugin plugin;
-    private final File folder;
+    private File file;
+    private FileConfiguration config;
 
     public FileManager(final MessagePlugin plugin)
     {
         this.plugin = plugin;
-        this.folder = plugin.getDataFolder();
+        this.file = new File(plugin.getDataFolder(), "data.yml");
+        this.config = YamlConfiguration.loadConfiguration(this.file);
     }
 
     private File getDataFile()
     {
-        return new File(folder, "data.yml");
+        if (this.file == null) {
+            this.file = new File(plugin.getDataFolder(), "data.yml");
+        }
+        return this.file;
     }
 
-    private final FileConfiguration data = YamlConfiguration.loadConfiguration(getDataFile());
-
-    public void saveDataFile()
-    {
-        try
-        {
-            data.save(getDataFile());
-        }
-        catch (IOException ex)
-        {
-            plugin.getLogger().log(Level.WARNING, "Failed to save file 'data.yml' ", ex);
-        }
-    }
-
-    public void createDataFile()
+    public void createConfigFile()
     {
         if (!getDataFile().exists())
         {
@@ -51,52 +42,70 @@ public class FileManager
             }
             catch (IOException ex)
             {
-                plugin.getLogger().log(Level.WARNING, "Failed to create file 'data.yml' ", ex);
+                plugin.getLogger().log(Level.WARNING, "Plugin failed to create a new file! 'data.yml' ", ex);
             }
         }
-        else
-        {
-            plugin.getLogger().log(Level.WARNING, "Failed to create file 'data.yml'");
-        }
-        saveDataFile();
+        this.saveFileAsync(true);
     }
 
     public void createFileSection()
     {
-        if (!data.isSet("users"))
+        if (!getDataConfig().isSet("users"))
         {
-            data.createSection("users");
+            getDataConfig().createSection("users");
         }
-       saveDataFile();
+        this.saveFileAsync(true);
     }
 
-    public void saveFileAsynchronous()
+    public void saveFileAsync(final boolean async)
     {
-        new BukkitRunnable()
+        if (!async)
         {
-            @Override
-            public void run()
+            try
             {
-                try
-                {
-                    data.save(getDataFile());
-                }
-                catch (IOException ex)
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Failed to save file 'data.yml' ", ex);
-                }
+                getDataConfig().save(getDataFile());
             }
-        }.runTaskAsynchronously(plugin);
+            catch (IOException ex)
+            {
+                plugin.getLogger().log(Level.SEVERE, "Plugin failed to save a file! 'data.yml' ", ex);
+            }
+        }
+        else
+        {
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        getDataConfig().save(getDataFile());
+                    }
+                    catch (IOException ex)
+                    {
+                        plugin.getLogger().log(Level.SEVERE, "Plugin failed to save a file! 'data.yml' ", ex);
+                    }
+                }
+            }.runTaskAsynchronously(this.plugin);
+        }
+    }
+
+    public FileConfiguration getDataConfig()
+    {
+        if (this.config == null) {
+            this.config = YamlConfiguration.loadConfiguration(getDataFile());
+        }
+        return this.config;
     }
 
     public void setUserToggleStatus(final String status, final Player player, final boolean newStatus)
     {
-        data.set("users." + player.getUniqueId() + "." + status, newStatus);
+        getDataConfig().set("users." + player.getUniqueId() + "." + status, newStatus);
     }
 
     public boolean getUserToggleStatus(final String status, final Player player)
     {
-        return data.getBoolean("users." + player.getUniqueId() + "." + status);
+        return getDataConfig().getBoolean("users." + player.getUniqueId() + "." + status);
     }
 
 }

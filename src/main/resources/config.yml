@@ -1,10 +1,15 @@
 #
-# Author: github/Frcsty
-# Version: 1.0.0
+# Author: Frcsty
+# Version: ${version}
 # Description: A plugin which uses NMS to toggle messages (server, player, plugin).
+#
+#
+# » PlaceholderAPI: the plugin supports PlaceholderAPI placeholder parsing in every message
+# (with the exception to true/false).
 #
 
 messages:
+  # Prefix of the plugin, can be referenced to using %prefix%
   prefix: '&8[&bMessageToggle&8]'
   no-permission: '%prefix% &7You do not have permission to execute this command!'
   player-only: '%prefix% &7This command can not be executed in console!'
@@ -16,16 +21,34 @@ messages:
   true: '&cDisabled'
   false: '&aEnabled'
 
+# Command settings
 settings:
   base-command: toggle
   alias:
     - "tn"
     - "togglenotifications"
 
+# Available Types:
+# - equals (Checks if the message exactly equals to the string, ignores colors)
+# - equalsIgnoreCase (Checks if the message exactly equals to the string, while ignoring color and capitalisation)
+# - contains (Checks if the message contains the string, ignores colors)
+# - startsWith (Checks if the message startWith the string, ignores colors)
+
 message-toggle:
   help:
     message: 'Type /help for a list of commands.'
+    type: 'equals'
     permission: toggle.help
+    show-without-perm: true
   mail:
     message: 'You have no new mail.'
+    type: 'equals'
     permission: toggle.mail
+    show-without-perm: false
+  multiplier:
+    message: 'You now have a multiplier of'
+    type: 'startsWith'
+    permission: toggle.multiplier
+    show-without-perm: false
+
+

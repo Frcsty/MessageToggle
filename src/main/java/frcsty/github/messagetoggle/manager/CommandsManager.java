@@ -51,15 +51,20 @@ public class CommandsManager
             this.manager.addAlias(cmd);
         }
 
-        this.locale.setUsage(getDefaultMessage(plugin.getConfig().getString("messages.usage")));
-        this.locale.setUnknownCommand(getDefaultMessage(plugin.getConfig().getString("messages.unknown-command")));
-        this.locale.setPlayerOnly(getDefaultMessage(plugin.getConfig().getString("messages.player-only")));
-        this.locale.setNoPermission(getDefaultMessage(plugin.getConfig().getString("messages.no-permission")));
+        this.locale.setUsage(getDefaultMessage(plugin.getConfig().getString("messages.usage").replace("%prefix%", prefix())));
+        this.locale.setUnknownCommand(getDefaultMessage(plugin.getConfig().getString("messages.unknown-command").replace("%prefix%", prefix())));
+        this.locale.setPlayerOnly(getDefaultMessage(plugin.getConfig().getString("messages.player-only").replace("%prefix%", prefix())));
+        this.locale.setNoPermission(getDefaultMessage(plugin.getConfig().getString("messages.no-permission").replace("%prefix%", prefix())));
     }
 
     private String getDefaultMessage(final String message)
     {
         return message == null ? StringUtil.translate("&8[&9MessageToggle&8] &cNo default message specified in the config!") : StringUtil.translate(message);
+    }
+
+    private String prefix()
+    {
+        return this.plugin.getConfig().getString("messages.prefix");
     }
 
     public CommandManager getManager()

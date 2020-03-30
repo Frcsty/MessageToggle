@@ -33,6 +33,11 @@ public class ToggleCommand
             return;
         }
 
+        if (!manager.getDataConfig().isSet("users"))
+        {
+            manager.createFileSection();
+        }
+
         if (manager.getUserToggleStatus(argument, sender))
         {
             sender.sendMessage(PAPIUtil.parse(sender, storage.getChangedStatus()
@@ -48,7 +53,7 @@ public class ToggleCommand
             manager.setUserToggleStatus(argument, sender, true);
         }
 
-        manager.saveFileAsynchronous();
+        manager.saveFileAsync(true);
     }
 
 }

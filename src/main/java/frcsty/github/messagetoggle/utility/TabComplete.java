@@ -51,8 +51,25 @@ public class TabComplete implements TabCompleter
             {
                 return Collections.emptyList();
             }
+            final List<String> toggles = new ArrayList<>();
 
-            return new ArrayList<>(section.getKeys(false));
+            for (String sec : section.getKeys(false))
+            {
+                final boolean show = section.getBoolean(sec + ".show-without-perm");
+                final String perm = section.getString(sec + ".permission");
+
+                if (perm == null)
+                {
+                    break;
+                }
+
+                if (show || s.hasPermission(perm))
+                {
+                    toggles.add(sec);
+                }
+            }
+
+            return toggles;
         }
         return Collections.emptyList();
     }

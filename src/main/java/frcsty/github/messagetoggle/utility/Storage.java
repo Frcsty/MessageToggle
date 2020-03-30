@@ -11,7 +11,7 @@ public class Storage
     private String trueString;
     private String falseString;
 
-    String getPrefix()
+    public String getPrefix()
     {
         return prefix;
     }
@@ -60,7 +60,6 @@ public class Storage
     {
         this.changedStatus = changedStatus;
     }
-
 
     public String getTrueString()
     {
