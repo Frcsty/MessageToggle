@@ -1,6 +1,7 @@
 name: MessageToggle
 version: ${project.version}
 main: frcsty.github.messagetoggle.MessagePlugin
+softdepend: [PlaceholderAPI]
 depend: ["ProtocolLib"]
 
 permissions:
