@@ -1,5 +1,5 @@
 #
-# Author: Frcsty
+# Authors: Frcsty, BlitzGamer-88
 # Version: ${version}
 # Description: A plugin which uses NMS to toggle messages (server, player, plugin).
 #
@@ -33,6 +33,7 @@ settings:
 # - equalsIgnoreCase (Checks if the message exactly equals to the string, while ignoring color and capitalisation)
 # - contains (Checks if the message contains the string, ignores colors)
 # - startsWith (Checks if the message startWith the string, ignores colors)
+# - startsWithIgnoreCase (Checks if the message startWith the string, ignores colors and capitalisation)
 
 message-toggle:
   help:

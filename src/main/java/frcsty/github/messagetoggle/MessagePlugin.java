@@ -10,10 +10,13 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import frcsty.github.messagetoggle.manager.CommandsManager;
 import frcsty.github.messagetoggle.manager.FileManager;
+import frcsty.github.messagetoggle.utility.Placeholders;
 import frcsty.github.messagetoggle.utility.Storage;
 import frcsty.github.messagetoggle.utility.StorageData;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Listener;
@@ -50,6 +53,10 @@ public final class MessagePlugin extends JavaPlugin implements Listener
         registerNewPacket();
 
         fileManager.saveFileAsync(true);
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null){
+            new Placeholders(this).register();
+        }
     }
 
     @Override
@@ -89,65 +96,89 @@ public final class MessagePlugin extends JavaPlugin implements Listener
                         @Override
                         public void onPacketSending(PacketEvent event)
                         {
-                            if (event.getPacketType() == PacketType.Play.Server.CHAT)
+                            if (event.getPacketType() != PacketType.Play.Server.CHAT)
                             {
-                                final PacketContainer packet = event.getPacket();
-                                final WrappedChatComponent component = packet.getChatComponents().read(0);
-                                final String message = ChatColor.stripColor(TextComponent.toLegacyText(ComponentSerializer.parse(component.getJson())));
-                                final ConfigurationSection section = plugin.getConfig().getConfigurationSection("message-toggle");
+                                return;
+                            }
 
-                                if (section == null)
+                            final PacketContainer packet = event.getPacket();
+                            final WrappedChatComponent component = packet.getChatComponents().read(0);
+                            if (component == null)
+                            {
+                                return;
+                            }
+
+                            final String json = component.getJson();
+                            if (json == null)
+                            {
+                                return;
+                            }
+                            final BaseComponent[] baseComponent = ComponentSerializer.parse(json);
+                            if (baseComponent == null)
+                            {
+                                return;
+                            }
+                            final String message = ChatColor.stripColor(TextComponent.toLegacyText(baseComponent));
+
+                            final ConfigurationSection section = plugin.getConfig().getConfigurationSection("message-toggle");
+
+                            if (section == null)
+                            {
+                                return;
+                            }
+
+                            for (String messages : section.getKeys(false))
+                            {
+                                final String msg = plugin.getConfig().getString("message-toggle." + messages + ".message");
+                                final String type = plugin.getConfig().getString("message-toggle." + messages + ".type");
+
+                                if (msg == null)
                                 {
-                                    return;
+                                    continue;
                                 }
 
-                                for (String messages : section.getKeys(false))
+                                if (type == null)
                                 {
-                                    final String msg = plugin.getConfig().getString("message-toggle." + messages + ".message");
-                                    final String type = plugin.getConfig().getString("message-toggle." + messages + ".type");
+                                    continue;
+                                }
 
-                                    if (msg == null)
-                                    {
-                                        return;
-                                    }
+                                if (!fileManager.getUserToggleStatus(messages, event.getPlayer()))
+                                {
+                                    continue;
+                                }
 
-                                    if (type == null)
-                                    {
-                                        return;
-                                    }
-
-                                    if (!fileManager.getUserToggleStatus(messages, event.getPlayer()))
-                                    {
-                                        return;
-                                    }
-
-                                    switch (type)
-                                    {
-                                        case "equals":
-                                            if (message.equals(msg))
-                                            {
-                                                event.setCancelled(true);
-                                            }
-                                            break;
-                                        case "equalsIgnoreCase":
-                                            if (message.equalsIgnoreCase(msg))
-                                            {
-                                                event.setCancelled(true);
-                                            }
-                                            break;
-                                        case "startsWith":
-                                            if (message.startsWith(msg))
-                                            {
-                                                event.setCancelled(true);
-                                            }
-                                            break;
-                                        case "contains":
-                                            if (message.contains(msg))
-                                            {
-                                                event.setCancelled(true);
-                                            }
-                                            break;
-                                    }
+                                switch (type)
+                                {
+                                    case "equals":
+                                        if (message.equals(msg))
+                                        {
+                                            event.setCancelled(true);
+                                        }
+                                        break;
+                                    case "equalsIgnoreCase":
+                                        if (message.equalsIgnoreCase(msg))
+                                        {
+                                            event.setCancelled(true);
+                                        }
+                                        break;
+                                    case "startsWith":
+                                        if (message.startsWith(msg))
+                                        {
+                                            event.setCancelled(true);
+                                        }
+                                        break;
+                                    case "startsWithIgnoreCase":
+                                        if (message.toLowerCase().startsWith(msg.toLowerCase()))
+                                        {
+                                            event.setCancelled(true);
+                                        }
+                                        break;
+                                    case "contains":
+                                        if (message.contains(msg))
+                                        {
+                                            event.setCancelled(true);
+                                        }
+                                        break;
                                 }
                             }
                         }

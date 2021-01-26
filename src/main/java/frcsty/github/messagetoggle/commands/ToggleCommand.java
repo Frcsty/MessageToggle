@@ -6,7 +6,10 @@ import frcsty.github.messagetoggle.MessagePlugin;
 import frcsty.github.messagetoggle.manager.FileManager;
 import frcsty.github.messagetoggle.utility.Storage;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import java.util.Set;
 
 public class ToggleCommand
 {
@@ -23,13 +26,30 @@ public class ToggleCommand
 
         if (permission == null || message == null)
         {
-            sender.sendMessage(PAPIUtil.parse(sender, storage.getInvalidArgument()));
+            sender.sendMessage(PAPIUtil.parse(sender, storage.getInvalidArgument().replace("{usage}", "/")));
             return;
         }
 
         if (!sender.hasPermission(permission))
         {
-            sender.sendMessage(PAPIUtil.parse(sender, storage.getNoPermission()));
+            final String command = plugin.getConfig().getString("settings.base-command");
+            if (command == null)
+            {
+                sender.sendMessage(PAPIUtil.parse(sender, storage.getNoPermission()));
+                return;
+            }
+            final ConfigurationSection section = plugin.getConfig().getConfigurationSection("message-toggle");
+            if (section == null)
+            {
+                sender.sendMessage(PAPIUtil.parse(sender, storage.getNoPermission()));
+                return;
+            }
+            final Set<String> messages = section.getKeys(false);
+            StringBuilder usage = new StringBuilder("<");
+            for (String msg : messages) {
+                usage.append(msg).append("/");
+            }
+            sender.sendMessage(PAPIUtil.parse(sender, storage.getNoPermission().replace("{usage}", command + usage.substring(0, usage.length()) + ">")));
             return;
         }
 
